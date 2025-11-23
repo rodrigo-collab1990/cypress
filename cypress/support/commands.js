@@ -1,25 +1,25 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+import LoginLogic from '../fixtures/Logic/automacaoLogic';
+
+// Comando para realizar login e salvar cookies
+Cypress.Commands.add('loginComCookies', () => {
+  cy.visit('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login');
+
+  LoginLogic.preencherCampoUsuario();
+  LoginLogic.preencherCampoSenha();
+  LoginLogic.clicarBotaoLogin();
+  LoginLogic.validaLogin();
+
+  // Salva todos os cookies APÓS logar
+  cy.getCookies().then((cookies) => {
+    cy.writeFile('cypress/fixtures/cookies.json', cookies);
+  });
+});
+
+// Comando para restaurar cookies antes dos testes
+Cypress.Commands.add('restaurarCookies', () => {
+  cy.readFile('cypress/fixtures/cookies.json').then((cookies) => {
+    cookies.forEach((cookie) => {
+      cy.setCookie(cookie.name, cookie.value);
+    });
+  });
+});
